@@ -39,28 +39,41 @@ const issues = [
 
 function Dashboard() {
   const [activeNav, setActiveNav] = useState("Dashboard");
-  const [taskIndex, setTaskIndex] = useState(0);
+  const [priorityIndex, setPriorityIndex] = useState(0);
+  const [issueIndex, setIssueIndex] = useState(0);
   const [resolvedCount, setResolvedCount] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const [showAllTasks, setShowAllTasks] = useState(false);
 
+  const totalTasks = [...priorityTasks, ...issues];
+
   const handleNavClick = (item) => {
     setActiveNav(item);
   };
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   const handleResolved = () => {
-    setResolvedCount(resolvedCount + 1);
-    if (taskIndex < priorityTasks.length - 1) {
-      setTaskIndex(taskIndex + 1);
-    } else {
-      alert("All priority tasks resolved!");
+    if (resolvedCount < totalTasks.length) {
+      setResolvedCount(resolvedCount + 1);
     }
+
+    if (priorityIndex < priorityTasks.length) {
+      setPriorityIndex(priorityIndex + 1);
+    } else if (issueIndex < issues.length) {
+      setIssueIndex(issueIndex + 1);
+    }
+
     setIsModalOpen(false);
   };
 
   const handleNotSeen = () => {
-    alert("Marked as not seen.");
     setIsModalOpen(false);
   };
 
@@ -74,7 +87,38 @@ function Dashboard() {
     setShowAllTasks(false);
   };
 
-  const totalTasks = [...priorityTasks, ...issues];
+  const renderPriorityTask = () => {
+    if (priorityIndex < priorityTasks.length) {
+      const task = priorityTasks[priorityIndex];
+      return (
+        <div className="priority-task-bar">
+          <h3>🚨 Highest Priority Task</h3>
+          <img src={task.image} alt={task.title} className="priority-img" />
+          <h4>{task.title}</h4>
+          <p>{task.description}</p>
+          <div className="priority-buttons">
+            <button className="resolved-btn" onClick={handleResolved}>Resolved</button>
+            <button className="not-seen-btn" onClick={handleNotSeen}>Not Seen</button>
+          </div>
+        </div>
+      );
+    } else if (issueIndex < issues.length) {
+      const task = issues[issueIndex];
+      return (
+        <div className="priority-task-bar" style={{ backgroundColor: "#ffffff", border: "1px solid #e5e7eb" }}>
+          <h3>📋 Reported Issue</h3>
+          <img src={task.image} alt={task.title} className="priority-img" />
+          <h4>{task.title}</h4>
+          <p>{task.description}</p>
+          <div className="priority-buttons">
+            <button className="resolved-btn" onClick={handleResolved}>Resolved</button>
+            <button className="not-seen-btn" onClick={handleNotSeen}>Not Seen</button>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="dashboard-container">
@@ -93,30 +137,16 @@ function Dashboard() {
       <main className="main-content">
         <header className="topbar">
           <input type="text" placeholder="Search" className="search" />
-          <div className="user-profile">
-            <span>Admira</span>
+          <div className="user-profile" style={{"paddingLeft":"15px"}}>
             <img src="https://i.pravatar.cc/32" alt="User" className="avatar" />
           </div>
         </header>
 
-        {taskIndex < priorityTasks.length && (
-          <div className="priority-task-bar">
-            <h3>🚨 Highest Priority Task</h3>
-            <img src={priorityTasks[taskIndex].image} alt={priorityTasks[taskIndex].title} className="priority-img" />
-            <h4>{priorityTasks[taskIndex].title}</h4>
-            <p>{priorityTasks[taskIndex].description}</p>
-            <div className="priority-buttons">
-              <button className="resolved-btn" onClick={handleResolved}>Resolved</button>
-              <button className="not-seen-btn" onClick={handleNotSeen}>Not Seen</button>
-            </div>
-          </div>
-        )}
+        {renderPriorityTask()}
 
         <section className="greeting">
-          <h2>Good morning, Admira</h2>
-          <p>Open the panel and watch your progress and growth in knowledge.</p>
-          <button className="account-btn">Account settings</button>
-        </section>
+      <h2>{getGreeting()}, Admin</h2>
+    </section>
 
         <section className="dashboard-grid">
           <div className="tasks-card">
